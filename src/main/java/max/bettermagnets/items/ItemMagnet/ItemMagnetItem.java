@@ -3,14 +3,15 @@ package max.bettermagnets.items.ItemMagnet;
 import java.util.List;
 
 import max.bettermagnets.BetterMagnets;
-import max.bettermagnets.client.ParticleMagnet;
+import max.bettermagnets.config.ConfigBetterMagnets;
 import max.bettermagnets.handlers.BetterMagnetGuiHandler;
 import max.bettermagnets.items.ModItemRegistry;
-import net.minecraft.client.Minecraft;
+import net.minecraft.client.resources.I18n;
 import net.minecraft.client.util.ITooltipFlag;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.item.EntityItem;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.entity.player.InventoryPlayer;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
@@ -21,6 +22,7 @@ import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.text.TextFormatting;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
@@ -34,9 +36,11 @@ public class ItemMagnetItem extends Item {
 	public boolean isActive = false;
 	public boolean isBlacklist = true;
 	private int range;
-	private static double velocity = 0.03;
+	private static double velocity = ConfigBetterMagnets.velocity;
 	
 	public int blacklistSize;
+	
+	private static boolean isMultiple;
 	
 	public ItemMagnetItem(String name, int size, int range) {
 		super();
@@ -59,6 +63,7 @@ public class ItemMagnetItem extends Item {
 		NBTTagCompound nbt = stack.getTagCompound();
 		nbt.setBoolean("isActive", false);
 		nbt.setBoolean("isBlacklist", true);
+		nbt.setBoolean("isOnlyOne", true);
 		super.onCreated(stack, worldIn, playerIn);
 	}
 	
@@ -84,6 +89,9 @@ public class ItemMagnetItem extends Item {
 			tooltip.add("Mode: Whitelist");
 		}
 		tooltip.add("Range: " + range);
+		if (!nbt.getBoolean("isOnlyOne")) {
+			tooltip.add(TextFormatting.RED + "MAGNET NOT ACTIVE DUE TO HAVING MULTIPLE IN THE SAME INVENTORY");
+		}
 	}
 	
 	public static void writeBlacklistToNBT(ItemStackHandlerBlacklist blacklist, ItemStack stack) {
@@ -163,7 +171,13 @@ public class ItemMagnetItem extends Item {
 		NBTTagCompound nbt = stack.getTagCompound();
 		isActive = nbt.getBoolean("isActive");
 		isBlacklist = nbt.getBoolean("isBlacklist");
-		if(isActive) {
+		boolean entityHasOnlyOne = false;;
+		if (entityIn instanceof EntityPlayer) {
+			InventoryPlayer inventory = ((EntityPlayer) entityIn).inventory;
+			entityHasOnlyOne = checkIfPlayerHasOnlyOneMagnet(inventory);
+			nbt.setBoolean("isOnlyOne", entityHasOnlyOne);
+		}
+		if(isActive && entityHasOnlyOne) {
 			if(entityIn instanceof EntityPlayer) {
 				EntityPlayer player = (EntityPlayer) entityIn;
 				double X = player.getPosition().getX();
@@ -208,6 +222,21 @@ public class ItemMagnetItem extends Item {
 			}
 		}
 		return false;
+	}
+	
+	private boolean checkIfPlayerHasOnlyOneMagnet(InventoryPlayer inv) {
+		int count = 0;
+		for (int i = 0; i < inv.getSizeInventory(); ++i) {
+			if (inv.getStackInSlot(i).getItem() instanceof ItemMagnetItem) {
+				count++;
+			}
+		}
+		if (count > 1) {
+			return false;
+		}
+		else {
+			return true;
+		}
 	}
 	
 	@SideOnly(Side.CLIENT)
