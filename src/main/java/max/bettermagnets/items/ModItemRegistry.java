@@ -3,6 +3,7 @@ package max.bettermagnets.items;
 import java.util.ArrayList;
 import java.util.List;
 
+import max.bettermagnets.config.ConfigBetterMagnets;
 import max.bettermagnets.items.ItemMagnet.ItemMagnetItem;
 import net.minecraft.client.renderer.block.model.ModelResourceLocation;
 import net.minecraft.item.Item;
@@ -21,9 +22,9 @@ public class ModItemRegistry {
 	public static ItemMagnetItem itemMagnet3;
 	
 	public static void initItems() {
-		itemMagnet1 = new ItemMagnetItem("item_magnet", 3, 5, 100000, 100);
-		itemMagnet2 = new ItemMagnetItem("item_magnet_2", 9, 10, 1000000, 1000);
-		itemMagnet3 = new ItemMagnetItem("item_magnet_3", 15, 15, 10000000, 10000);
+		itemMagnet1 = new ItemMagnetItem("item_magnet", 3, 5, ConfigBetterMagnets.tier1EnergyStorage, ConfigBetterMagnets.tier1EnergyTransfer);
+		itemMagnet2 = new ItemMagnetItem("item_magnet_2", 9, 10, ConfigBetterMagnets.tier2EnergyStorage, ConfigBetterMagnets.tier2EnergyTransfer);
+		itemMagnet3 = new ItemMagnetItem("item_magnet_3", 15, 15, ConfigBetterMagnets.tier3EnergyStorage, ConfigBetterMagnets.tier3EnergyTransfer);
 	}
 	
 	@SubscribeEvent

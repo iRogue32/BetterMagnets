@@ -47,6 +47,7 @@ public class ItemMagnetItem extends Item {
 	
 	public boolean isActive = false;
 	public boolean isBlacklist = true;
+	
 	private int range;
 	private static double velocity = ConfigBetterMagnets.velocity;
 	private static int energyCost = ConfigBetterMagnets.energyCost;
@@ -56,16 +57,16 @@ public class ItemMagnetItem extends Item {
 	public ItemMagnetItem(String name, int size, int range, int maxEnergy, int energyTransfer) {
 		super();
 		
-		setUnlocalizedName(name);
-		setRegistryName(name);
+		this.setUnlocalizedName(name);
+		this.setRegistryName(name);
 		
-		blacklistSize = size;
-		setMaxStackSize(1);
+		this.blacklistSize = size;
+		this.setMaxStackSize(1);
 		this.range = range;
 		this.maxEnergy = maxEnergy;
 		this.energyTransfer = energyTransfer;
 		
-		setCreativeTab(BetterMagnets.CTBM);
+		this.setCreativeTab(BetterMagnets.CTBM);
 		
 		ModItemRegistry.items.add(this);
 	}
@@ -290,6 +291,20 @@ public class ItemMagnetItem extends Item {
 	}
 	
 	@Override
+	public void getSubItems(CreativeTabs tab, NonNullList<ItemStack> items) {
+		if (this.isInCreativeTab(tab)) {
+			ItemStack stack = new ItemStack(this);
+			if (stack.hasCapability(CapabilityEnergy.ENERGY, null)) {
+				IEnergyStorage storage = stack.getCapability(CapabilityEnergy.ENERGY, null);
+				this.setStackEnergyMax(stack);
+				items.add(stack);
+			}
+			ItemStack stack1 = new ItemStack(this);
+			items.add(stack1);
+		}
+	}
+	
+	@Override
 	public boolean showDurabilityBar(ItemStack stack) {
 		if (this.getDurabilityForDisplay(stack) == 0 || !ConfigBetterMagnets.requireEnergy) {
 			return false;
@@ -328,20 +343,6 @@ public class ItemMagnetItem extends Item {
 					storage.receiveEnergy(storage.getMaxEnergyStored(), false);
 				}
 			}
-		}
-	}
-	
-	@Override
-	public void getSubItems(CreativeTabs tab, NonNullList<ItemStack> items) {
-		if (this.isInCreativeTab(tab)) {
-			ItemStack stack = new ItemStack(this);
-			if (stack.hasCapability(CapabilityEnergy.ENERGY, null)) {
-				IEnergyStorage storage = stack.getCapability(CapabilityEnergy.ENERGY, null);
-				this.setStackEnergyMax(stack);
-				items.add(stack);
-			}
-			ItemStack stack1 = new ItemStack(this);
-			items.add(stack1);
 		}
 	}
 	
