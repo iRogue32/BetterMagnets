@@ -46,7 +46,7 @@ public class ItemMagnetItem extends Item {
 	private final int energyTransfer;
 	
 	public boolean isActive = false;
-	public boolean isBlacklist = true;
+	public boolean isBlacklistMode = true;
 	
 	private int range;
 	private static double velocity = ConfigBetterMagnets.velocity;
@@ -91,14 +91,14 @@ public class ItemMagnetItem extends Item {
 		}
 		NBTTagCompound nbt = stack.getTagCompound();
 		isActive = nbt.getBoolean("isActive");
-		isBlacklist = nbt.getBoolean("isBlacklist");
+		isBlacklistMode = nbt.getBoolean("isBlacklist");
 		if(isActive) {
 			tooltip.add("Active");
 		}
 		else {
 			tooltip.add("Inactive");
 		}
-		if (isBlacklist) {
+		if (isBlacklistMode) {
 			tooltip.add("Mode: Blacklist");
 		}
 		else {
@@ -192,7 +192,7 @@ public class ItemMagnetItem extends Item {
 		}
 		NBTTagCompound nbt = stack.getTagCompound();
 		isActive = nbt.getBoolean("isActive");
-		isBlacklist = nbt.getBoolean("isBlacklist");
+		isBlacklistMode = nbt.getBoolean("isBlacklist");
 		boolean entityHasOnlyOne = false;
 		if (entityIn instanceof EntityPlayer) {
 			InventoryPlayer inventory = ((EntityPlayer) entityIn).inventory;
@@ -203,16 +203,12 @@ public class ItemMagnetItem extends Item {
 			boolean itemsMoved = false;
 			if(entityIn instanceof EntityPlayer) {
 				EntityPlayer player = (EntityPlayer) entityIn;
-				double X = player.getPosition().getX();
-				double Y = player.getPosition().getY() + 1;
-				double Z = player.getPosition().getZ();
 				List<EntityItem> nearbyItems = player.world.getEntitiesWithinAABB(EntityItem.class, new AxisAlignedBB(player.getPosition().getX() - range, player.getPosition().getY() - range, player.getPosition().getZ() - range, player.getPosition().getX() + range, player.getPosition().getY() + range, player.getPosition().getZ() + range));
 				for(EntityItem i : nearbyItems) {
-					if (isBlacklist) {
+					if (isBlacklistMode) {
 						if(!isInFilter(i, stack)) {
 							if (this.getEnergyStored(stack) >= this.energyCost) {
-								i.addVelocity((X - i.posX) * velocity, (Y - i.posY) * velocity, (Z - i.posZ) * velocity);
-								BetterMagnets.proxy.generateMagnetParticles(worldIn, i);
+								i.onCollideWithPlayer(player);
 								itemsMoved = true;
 							}
 						}
@@ -220,8 +216,7 @@ public class ItemMagnetItem extends Item {
 					else {
 						if(isInFilter(i, stack)) {
 							if (this.getEnergyStored(stack) >= this.energyCost) {
-								i.addVelocity((X - i.posX) * velocity, (Y - i.posY) * velocity, (Z - i.posZ) * velocity);
-								BetterMagnets.proxy.generateMagnetParticles(worldIn, i);
+								i.onCollideWithPlayer(player);
 								itemsMoved = true;
 							}
 						}
