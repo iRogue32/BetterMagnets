@@ -20,6 +20,8 @@ public class BetterMagnets {
 	@Instance(Reference.MODID)
 	public static BetterMagnets instance;
 	
+	public static final CreativeTabBetterMagnets CTBM = new CreativeTabBetterMagnets("better_magnets_tab");
+	
 	@EventHandler
 	public void preInit(FMLPreInitializationEvent event) {
 		proxy.preInit(event);
