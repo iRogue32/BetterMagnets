@@ -49,7 +49,6 @@ public class ItemMagnetItem extends Item {
 	public boolean isBlacklistMode = true;
 	
 	private int range;
-	private static double velocity = ConfigBetterMagnets.velocity;
 	private static int energyCost = ConfigBetterMagnets.energyCost;
 	
 	public int blacklistSize;
