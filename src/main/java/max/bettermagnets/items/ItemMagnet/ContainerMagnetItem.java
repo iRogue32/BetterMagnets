@@ -1,26 +1,34 @@
 package max.bettermagnets.items.ItemMagnet;
 
+import max.bettermagnets.network.IHasButton;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.InventoryPlayer;
 import net.minecraft.inventory.ClickType;
 import net.minecraft.inventory.Container;
+import net.minecraft.inventory.ContainerFurnace;
+import net.minecraft.inventory.IContainerListener;
 import net.minecraft.inventory.Slot;
 import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.util.EnumHand;
 import net.minecraftforge.items.CapabilityItemHandler;
 import net.minecraftforge.items.ItemStackHandler;
 import net.minecraftforge.items.SlotItemHandler;
 
-public class ContainerMagnetItem extends Container {
+public class ContainerMagnetItem extends Container implements IHasButton {
 	
 	ItemStackHandlerBlacklist blacklist;
 	InventoryPlayer inventory;
+	public boolean isBlacklist;
 	
 	public ContainerMagnetItem() {
 		//should never get called
 	}
 	
 	public ContainerMagnetItem(InventoryPlayer inventory) {
+		ItemStack magnetStack = inventory.getStackInSlot(inventory.currentItem);
 		ItemMagnetItem magnet = ((ItemMagnetItem)inventory.getStackInSlot(inventory.currentItem).getItem());
+		isBlacklist = magnetStack.getTagCompound().getBoolean("isBlacklist");
 		this.inventory = inventory;
 		this.blacklist = new ItemStackHandlerBlacklist(((ItemMagnetItem)inventory.getStackInSlot(inventory.currentItem).getItem()).blacklistSize);
 		
@@ -103,6 +111,8 @@ public class ContainerMagnetItem extends Container {
 		ItemStack stack = playerIn.inventory.getCurrentItem();
 		if(stack != ItemStack.EMPTY && stack.getItem() instanceof ItemMagnetItem) {
 			ItemMagnetItem.writeBlacklistToNBT(blacklist, playerIn.inventory.getCurrentItem());
+			NBTTagCompound nbt = stack.getTagCompound();
+			nbt.setBoolean("isBlacklist", this.isBlacklist);
 		}
 		super.onContainerClosed(playerIn);
 	}
@@ -110,6 +120,28 @@ public class ContainerMagnetItem extends Container {
 	@Override
 	public boolean canInteractWith(EntityPlayer playerIn) {
 		return true;
+	}
+
+	@Override
+	public void detectAndSendChanges() {
+		super.detectAndSendChanges();
+		for (IContainerListener l : this.listeners) {
+			l.sendWindowProperty(this, 0, isBlacklist ? 0 : 1);
+		}
+	}
+	
+	@Override
+	public void updateProgressBar(int id, int data) {
+		if (id == 0) {
+			isBlacklist = data == 0;
+		}
+	}
+	
+	@Override
+	public void buttonPressed(int buttonId, EntityPlayer player) {
+		if (buttonId == 0) {
+			this.isBlacklist = !this.isBlacklist;
+		}
 	}
 
 }
