@@ -12,7 +12,7 @@
     {
         "r":
         {
-            "item": "minecraft:iron_ingot"
+            "item": "minecraft:blaze_rod"
         },
         
         "e":
@@ -23,6 +23,6 @@
     
     "result":
     {
-        "item": "mbm:item_magnet"
+        "item": "mbm:item_magnet_2"
     }
 }

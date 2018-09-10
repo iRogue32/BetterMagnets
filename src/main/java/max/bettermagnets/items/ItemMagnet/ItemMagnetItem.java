@@ -1,5 +1,6 @@
 package max.bettermagnets.items.ItemMagnet;
 
+import java.text.NumberFormat;
 import java.util.List;
 
 import max.bettermagnets.BetterMagnets;
@@ -97,16 +98,16 @@ public class ItemMagnetItem extends Item {
 		else {
 			tooltip.add("Inactive");
 		}
-		if (isBlacklistMode) {
-			tooltip.add("Mode: Blacklist");
-		}
-		else {
-			tooltip.add("Mode: Whitelist");
-		}
+//		if (isBlacklistMode) {
+//			tooltip.add("Mode: Blacklist");
+//		}
+//		else {
+//			tooltip.add("Mode: Whitelist");
+//		}
 		
 		if (stack.hasCapability(CapabilityEnergy.ENERGY, null)) {
 			IEnergyStorage storage = stack.getCapability(CapabilityEnergy.ENERGY, null);
-			tooltip.add(String.format("%s/%s Redstone Flux", storage.getEnergyStored(),storage.getMaxEnergyStored()));
+			tooltip.add(String.format("%s/%s Redstone Flux", NumberFormat.getInstance().format(storage.getEnergyStored()),NumberFormat.getInstance().format(storage.getMaxEnergyStored())));
 		}
 		
 		tooltip.add("Range: " + range);
@@ -143,24 +144,6 @@ public class ItemMagnetItem extends Item {
 	}
 	
 	@Override
-	public EnumActionResult onItemUse(EntityPlayer player, World world, BlockPos pos, EnumHand hand,EnumFacing facing, float hitX, float hitY, float hitZ) {
-		if(player.isSneaking()) {
-			ItemStack stack = player.getHeldItem(hand);
-			NBTTagCompound nbt = stack.getTagCompound();
-			if (nbt == null) {
-				nbt = new NBTTagCompound();
-			}
-			if (nbt.hasKey("isBlacklist")) {
-				nbt.setBoolean("isBlacklist", !nbt.getBoolean("isBlacklist"));
-			}
-			else {
-				nbt.setBoolean("isBlacklist", true);
-			}
-		}
-		return EnumActionResult.SUCCESS;
-	}
-	
-	@Override
 	public ActionResult<ItemStack> onItemRightClick(World world, EntityPlayer player, EnumHand hand) {
 		if(player.isSneaking()) {
 			ItemStack stack = player.getHeldItem(hand);
@@ -190,6 +173,9 @@ public class ItemMagnetItem extends Item {
 			nbt1.setBoolean("isBlacklist", true);
 		}
 		NBTTagCompound nbt = stack.getTagCompound();
+		if (!nbt.hasKey("isBlacklist")) {
+			nbt.setBoolean("isBlacklist", true);
+		}
 		isActive = nbt.getBoolean("isActive");
 		isBlacklistMode = nbt.getBoolean("isBlacklist");
 		boolean entityHasOnlyOne = false;
